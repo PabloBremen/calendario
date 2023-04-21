@@ -18,7 +18,7 @@ public class CalendarController {
     
     public void initialize() {
         model = new CalendarModel();
-        calendarView = new CalendarView(model);
+        calendarView = new CalendarView(model,200);
         root.getChildren().add(calendarView);
     }
     

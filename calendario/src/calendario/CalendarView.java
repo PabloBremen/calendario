@@ -1,11 +1,14 @@
 package calendario;
 
 import java.time.LocalDate;
+
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
@@ -15,18 +18,24 @@ public class CalendarView extends GridPane {
     private CalendarModel model;
     private Label monthLabel;
     private GridPane calendarGrid;
+    private double fontSize;
 
-    public CalendarView(CalendarModel model) {
+    public CalendarView(CalendarModel model, double fontSize) {
         this.model = model;
+        this.fontSize = fontSize;
 
         // Create the month label
         monthLabel = new Label();
+        monthLabel.setFont(new Font(fontSize));
         monthLabel.setTextFill(Color.BLUE);
+        monthLabel.setTextAlignment(TextAlignment.CENTER);
+        GridPane.setHgrow(monthLabel, Priority.ALWAYS);
 
         // Create the grid pane that displays the days
         calendarGrid = new GridPane();
-        calendarGrid.setHgap(5);
-        calendarGrid.setVgap(5);
+        calendarGrid.setPadding(new Insets(10));
+        calendarGrid.setHgap(10);
+        calendarGrid.setVgap(10);
         calendarGrid.setAlignment(Pos.CENTER);
 
         // Add the month label and grid pane to this layout
@@ -35,30 +44,6 @@ public class CalendarView extends GridPane {
 
         // Update the view
         updateView();
-
-        // Add a change listener to the width and height properties of the calendar view
-        // to adjust the font size of the labels accordingly
-        widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observableValue, Number oldWidth, Number newWidth) {
-                double fontSize = newWidth.doubleValue() / 25;
-                calendarGrid.getChildren().forEach(node -> {
-                    Label label = (Label) node;
-                    label.setFont(new Font(fontSize));
-                });
-            }
-        });
-
-        heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observableValue, Number oldHeight, Number newHeight) {
-                double fontSize = newHeight.doubleValue() / 15;
-                calendarGrid.getChildren().forEach(node -> {
-                    Label label = (Label) node;
-                    label.setFont(new Font(fontSize));
-                });
-            }
-        });
     }
 
     public void updateView() {
@@ -67,18 +52,24 @@ public class CalendarView extends GridPane {
 
         // Clear all days from the grid pane
         calendarGrid.getChildren().clear();
+        calendarGrid.getRowConstraints().clear();
+
+        // Calculate the font size for the day labels
+        double dayFontSize = 0.04 * Math.min(getWidth(), getHeight());
 
         // Add the days of the current month to the grid pane
         LocalDate date = model.getCurrentYearMonth().atDay(1);
         int row = 1;
-        int col = date.getDayOfWeek().getValue();
+        int col = date.getDayOfWeek().getValue() % 7;
         while (date.getMonth().equals(model.getCurrentYearMonth().getMonth())) {
             Label label = new Label(model.getDateString(date));
+            label.setFont(new Font(dayFontSize));
+            label.setTextAlignment(TextAlignment.CENTER);
+            label.setPrefWidth(Double.MAX_VALUE);
+            label.setPrefHeight(Double.MAX_VALUE);
             label.setAlignment(Pos.CENTER);
-            label.setMaxWidth(Double.MAX_VALUE);
-            label.setMaxHeight(Double.MAX_VALUE);
-            GridPane.setVgrow(label, Priority.ALWAYS);
             GridPane.setHgrow(label, Priority.ALWAYS);
+            GridPane.setVgrow(label, Priority.ALWAYS);
             calendarGrid.add(label, col, row);
             col++;
             if (col > 6) {
@@ -86,6 +77,13 @@ public class CalendarView extends GridPane {
                 row++;
             }
             date = date.plusDays(1);
+        }
+
+        // Add row constraints to make all rows the same height
+        for (int i = 0; i < row; i++) {
+            RowConstraints constraints = new RowConstraints();
+            constraints.setVgrow(Priority.ALWAYS);
+            calendarGrid.getRowConstraints().add(constraints);
         }
     }
 

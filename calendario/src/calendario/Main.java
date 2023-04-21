@@ -10,10 +10,10 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
     	 // Create the model and the view
         CalendarModel model = new CalendarModel();
-        CalendarView view = new CalendarView(model);
+        CalendarView view = new CalendarView(model,200);
 
-        view.setPrefWidth(600);
-        view.setPrefHeight(400);
+        //view.setPrefWidth(600);
+        //view.setPrefHeight(400);
         // Create the scene and add the view to it
         Scene scene = new Scene(view);
 
