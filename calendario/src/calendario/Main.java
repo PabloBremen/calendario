@@ -12,6 +12,8 @@ public class Main extends Application {
         CalendarModel model = new CalendarModel();
         CalendarView view = new CalendarView(model);
 
+        view.setPrefWidth(600);
+        view.setPrefHeight(400);
         // Create the scene and add the view to it
         Scene scene = new Scene(view);
 
